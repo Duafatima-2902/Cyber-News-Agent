@@ -1,0 +1,216 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - CyberNewsAgent{% endblock %}
+
+{% block content %}
+<!-- Header Section -->
+<div class="mb-8">
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center">
+        <div>
+            <h1 class="text-4xl font-bold text-cyber-blue cyber-text-glow mb-2">Cybersecurity Intelligence Dashboard</h1>
+            <p class="text-gray-400 text-lg">Real-time threat analysis and security insights powered by AI</p>
+        </div>
+        <div class="mt-4 md:mt-0">
+            <button onclick="refreshData()" class="bg-cyber-blue hover:bg-blue-600 text-white px-6 py-3 rounded-lg transition-colors duration-200 cyber-glow">
+                <i class="fas fa-sync-alt mr-2"></i>Refresh Data
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Statistics Cards -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+    <div class="bg-cyber-gray border border-gray-800 rounded-lg p-6 card-hover">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-gray-400 text-sm">Total Items</p>
+                <p class="text-3xl font-bold text-white">{{ total_items }}</p>
+            </div>
+            <div class="bg-cyber-blue bg-opacity-20 p-3 rounded-full">
+                <i class="fas fa-newspaper text-cyber-blue text-xl"></i>
+            </div>
+        </div>
+    </div>
+    
+    <div class="bg-cyber-gray border border-gray-800 rounded-lg p-6 card-hover">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-gray-400 text-sm">High Severity</p>
+                <p class="text-3xl font-bold text-cyber-red">{{ severity_stats.High }}</p>
+            </div>
+            <div class="bg-red-900 bg-opacity-20 p-3 rounded-full">
+                <i class="fas fa-exclamation-triangle text-cyber-red text-xl"></i>
+            </div>
+        </div>
+    </div>
+    
+    <div class="bg-cyber-gray border border-gray-800 rounded-lg p-6 card-hover">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-gray-400 text-sm">Medium Severity</p>
+                <p class="text-3xl font-bold text-cyber-yellow">{{ severity_stats.Medium }}</p>
+            </div>
+            <div class="bg-yellow-900 bg-opacity-20 p-3 rounded-full">
+                <i class="fas fa-exclamation-circle text-cyber-yellow text-xl"></i>
+            </div>
+        </div>
+    </div>
+    
+    <div class="bg-cyber-gray border border-gray-800 rounded-lg p-6 card-hover">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-gray-400 text-sm">Low Severity</p>
+                <p class="text-3xl font-bold text-cyber-green">{{ severity_stats.Low }}</p>
+            </div>
+            <div class="bg-green-900 bg-opacity-20 p-3 rounded-full">
+                <i class="fas fa-check-circle text-cyber-green text-xl"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Daily Digest Section -->
+<div class="bg-cyber-gray border border-gray-800 rounded-lg p-6 mb-8">
+    <div class="flex items-center justify-between mb-4">
+        <h2 class="text-2xl font-bold text-cyber-blue">
+            <i class="fas fa-newspaper mr-2"></i>Daily Intelligence Digest
+        </h2>
+        <span class="text-sm text-gray-400">Last updated: {{ timestamp | datetime }}</span>
+    </div>
+    <div class="bg-gray-900 border border-gray-700 rounded-lg p-4">
+        <p class="text-gray-300 leading-relaxed">{{ daily_digest }}</p>
+    </div>
+</div>
+
+<!-- News Categories -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+    {% for category, items in categorized_news.items() %}
+        {% if items %}
+        <div class="bg-cyber-gray border border-gray-800 rounded-lg p-6">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-xl font-bold text-cyber-blue">
+                    <i class="{{ category | category_icon }} mr-2"></i>{{ category }}
+                </h3>
+                <span class="bg-gray-800 text-gray-300 px-3 py-1 rounded-full text-sm">{{ items | length }} items</span>
+            </div>
+            
+            <div class="space-y-4">
+                {% for item in items[:5] %}
+                <div class="bg-gray-900 border border-gray-700 rounded-lg p-4 card-hover">
+                    <div class="flex items-start justify-between mb-2">
+                        <h4 class="text-lg font-semibold text-white hover:text-cyber-blue transition-colors">
+                            <a href="{{ item.url }}" target="_blank" rel="noopener noreferrer">
+                                {{ item.title }}
+                            </a>
+                        </h4>
+                        <span class="ml-4 px-2 py-1 rounded-full text-xs font-medium {{ item.severity | severity_color }}">
+                            {{ item.severity }}
+                        </span>
+                    </div>
+                    
+                    {% if item.summary %}
+                    <p class="text-gray-400 text-sm mb-3">{{ item.summary }}</p>
+                    {% endif %}
+                    
+                    <div class="flex items-center justify-between text-sm text-gray-500">
+                        <div class="flex items-center space-x-4">
+                            <span><i class="fas fa-source mr-1"></i>{{ item.source }}</span>
+                            <span><i class="fas fa-clock mr-1"></i>{{ item.published_at | datetime }}</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            {% for tag in item.tags[:3] %}
+                            <span class="bg-gray-800 px-2 py-1 rounded text-xs">{{ tag }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+                
+                {% if items | length > 5 %}
+                <div class="text-center">
+                    <button class="text-cyber-blue hover:text-blue-400 transition-colors">
+                        <i class="fas fa-chevron-down mr-1"></i>Show More ({{ items | length - 5 }} more)
+                    </button>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+    {% endfor %}
+</div>
+
+<!-- Quick Actions -->
+<div class="mt-8 bg-cyber-gray border border-gray-800 rounded-lg p-6">
+    <h3 class="text-xl font-bold text-cyber-blue mb-4">
+        <i class="fas fa-bolt mr-2"></i>Quick Actions
+    </h3>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <a href="{{ url_for('search') }}" class="bg-gray-800 hover:bg-gray-700 border border-gray-700 rounded-lg p-4 text-center transition-colors duration-200">
+            <i class="fas fa-search text-cyber-blue text-2xl mb-2"></i>
+            <h4 class="font-semibold text-white">Search News</h4>
+            <p class="text-gray-400 text-sm">Find specific threats and vulnerabilities</p>
+        </a>
+        
+        <a href="{{ url_for('export_pdf') }}" class="bg-gray-800 hover:bg-gray-700 border border-gray-700 rounded-lg p-4 text-center transition-colors duration-200">
+            <i class="fas fa-file-pdf text-cyber-red text-2xl mb-2"></i>
+            <h4 class="font-semibold text-white">Export PDF</h4>
+            <p class="text-gray-400 text-sm">Generate comprehensive report</p>
+        </a>
+        
+        <a href="{{ url_for('export_email') }}" class="bg-gray-800 hover:bg-gray-700 border border-gray-700 rounded-lg p-4 text-center transition-colors duration-200">
+            <i class="fas fa-envelope text-cyber-green text-2xl mb-2"></i>
+            <h4 class="font-semibold text-white">Email Summary</h4>
+            <p class="text-gray-400 text-sm">Share digest with team</p>
+        </a>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    // Auto-refresh data every 5 minutes
+    setInterval(function() {
+        fetch('/api/refresh')
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    // Update timestamp
+                    const timestampElements = document.querySelectorAll('[data-timestamp]');
+                    timestampElements.forEach(el => {
+                        el.textContent = new Date().toLocaleString();
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error refreshing data:', error);
+            });
+    }, 5 * 60 * 1000);
+    
+    // Add loading states to buttons
+    function refreshData() {
+        const button = event.target;
+        const originalText = button.innerHTML;
+        button.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Refreshing...';
+        button.disabled = true;
+        
+        fetch('/api/refresh')
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    location.reload();
+                } else {
+                    alert('Error refreshing data');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error refreshing data');
+            })
+            .finally(() => {
+                button.innerHTML = originalText;
+                button.disabled = false;
+            });
+    }
+</script>
+{% endblock %}
+

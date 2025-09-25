@@ -1,0 +1,21 @@
+# API Keys (All FREE!)
+GEMINI_API_KEY=your_gemini_api_key_here
+NEWS_API_KEY=your_newsapi_key_here
+REDDIT_CLIENT_ID=your_reddit_client_id_here
+REDDIT_CLIENT_SECRET=your_reddit_client_secret_here
+
+# Flask Configuration
+FLASK_ENV=development
+SECRET_KEY=your_secret_key_here
+
+# Notification Settings
+NOTIFICATION_TIME=09:00
+NOTIFICATION_EMAIL=your_email@gmail.com
+EMAIL_PASSWORD=your_app_password_here
+
+# Railway Deployment
+APP_URL=https://your-app-name.railway.app
+
+# Optional: Custom News Sources
+CUSTOM_NEWS_SOURCES=https://krebsonsecurity.com/feed/,https://feeds.feedburner.com/SecurityWeek
+

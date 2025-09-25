@@ -1,0 +1,241 @@
+{% extends "base.html" %}
+
+{% block title %}Search - CyberNewsAgent{% endblock %}
+
+{% block content %}
+<!-- Header Section -->
+<div class="mb-8">
+    <h1 class="text-4xl font-bold text-cyber-blue cyber-text-glow mb-2">Search Cybersecurity News</h1>
+    <p class="text-gray-400 text-lg">Find specific threats, vulnerabilities, and security updates</p>
+</div>
+
+<!-- Search Form -->
+<div class="bg-cyber-gray border border-gray-800 rounded-lg p-6 mb-8">
+    <form method="GET" action="{{ url_for('search') }}" class="flex flex-col md:flex-row gap-4">
+        <div class="flex-1">
+            <input 
+                type="text" 
+                name="q" 
+                value="{{ query }}" 
+                placeholder="Search for ransomware, CVE-2024, phishing, etc..."
+                class="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-cyber-blue focus:ring-1 focus:ring-cyber-blue"
+            >
+        </div>
+        <button 
+            type="submit" 
+            class="bg-cyber-blue hover:bg-blue-600 text-white px-8 py-3 rounded-lg transition-colors duration-200 cyber-glow"
+        >
+            <i class="fas fa-search mr-2"></i>Search
+        </button>
+    </form>
+    
+    <!-- Search Suggestions -->
+    <div class="mt-4">
+        <p class="text-gray-400 text-sm mb-2">Popular searches:</p>
+        <div class="flex flex-wrap gap-2">
+            <a href="{{ url_for('search', q='ransomware') }}" class="bg-gray-800 hover:bg-gray-700 text-gray-300 px-3 py-1 rounded-full text-sm transition-colors">ransomware</a>
+            <a href="{{ url_for('search', q='CVE-2024') }}" class="bg-gray-800 hover:bg-gray-700 text-gray-300 px-3 py-1 rounded-full text-sm transition-colors">CVE-2024</a>
+            <a href="{{ url_for('search', q='phishing') }}" class="bg-gray-800 hover:bg-gray-700 text-gray-300 px-3 py-1 rounded-full text-sm transition-colors">phishing</a>
+            <a href="{{ url_for('search', q='zero-day') }}" class="bg-gray-800 hover:bg-gray-700 text-gray-300 px-3 py-1 rounded-full text-sm transition-colors">zero-day</a>
+            <a href="{{ url_for('search', q='malware') }}" class="bg-gray-800 hover:bg-gray-700 text-gray-300 px-3 py-1 rounded-full text-sm transition-colors">malware</a>
+            <a href="{{ url_for('search', q='data breach') }}" class="bg-gray-800 hover:bg-gray-700 text-gray-300 px-3 py-1 rounded-full text-sm transition-colors">data breach</a>
+        </div>
+    </div>
+</div>
+
+<!-- Search Results -->
+{% if query %}
+<div class="mb-6">
+    <div class="flex items-center justify-between">
+        <h2 class="text-2xl font-bold text-cyber-blue">
+            <i class="fas fa-search mr-2"></i>Search Results for "{{ query }}"
+        </h2>
+        <span class="text-gray-400">{{ results | length }} results found</span>
+    </div>
+</div>
+
+{% if results %}
+<div class="space-y-6">
+    {% for item in results %}
+    <div class="bg-cyber-gray border border-gray-800 rounded-lg p-6 card-hover">
+        <div class="flex items-start justify-between mb-4">
+            <div class="flex-1">
+                <h3 class="text-xl font-semibold text-white hover:text-cyber-blue transition-colors mb-2">
+                    <a href="{{ item.url }}" target="_blank" rel="noopener noreferrer">
+                        {{ item.title }}
+                    </a>
+                </h3>
+                <div class="flex items-center space-x-4 text-sm text-gray-400 mb-3">
+                    <span><i class="fas fa-source mr-1"></i>{{ item.source }}</span>
+                    <span><i class="fas fa-clock mr-1"></i>{{ item.published_at | datetime }}</span>
+                    <span><i class="fas fa-tag mr-1"></i>{{ item.category }}</span>
+                </div>
+            </div>
+            <span class="ml-4 px-3 py-1 rounded-full text-sm font-medium {{ item.severity | severity_color }}">
+                {{ item.severity }}
+            </span>
+        </div>
+        
+        {% if item.summary %}
+        <div class="bg-gray-900 border border-gray-700 rounded-lg p-4 mb-4">
+            <h4 class="text-sm font-semibold text-cyber-blue mb-2">AI Summary:</h4>
+            <p class="text-gray-300">{{ item.summary }}</p>
+        </div>
+        {% endif %}
+        
+        <div class="bg-gray-900 border border-gray-700 rounded-lg p-4 mb-4">
+            <h4 class="text-sm font-semibold text-cyber-blue mb-2">Content Preview:</h4>
+            <p class="text-gray-300">{{ item.content[:300] }}{% if item.content | length > 300 %}...{% endif %}</p>
+        </div>
+        
+        <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-2">
+                {% for tag in item.tags %}
+                <span class="bg-gray-800 text-gray-300 px-2 py-1 rounded text-xs">{{ tag }}</span>
+                {% endfor %}
+            </div>
+            <a href="{{ item.url }}" target="_blank" rel="noopener noreferrer" class="text-cyber-blue hover:text-blue-400 transition-colors">
+                <i class="fas fa-external-link-alt mr-1"></i>Read Full Article
+            </a>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Export Search Results -->
+<div class="mt-8 bg-cyber-gray border border-gray-800 rounded-lg p-6">
+    <h3 class="text-lg font-bold text-cyber-blue mb-4">
+        <i class="fas fa-download mr-2"></i>Export Search Results
+    </h3>
+    <div class="flex flex-wrap gap-4">
+        <button onclick="exportSearchResults('json')" class="bg-gray-800 hover:bg-gray-700 text-gray-300 px-4 py-2 rounded-lg transition-colors">
+            <i class="fas fa-file-code mr-2"></i>Export as JSON
+        </button>
+        <button onclick="exportSearchResults('csv')" class="bg-gray-800 hover:bg-gray-700 text-gray-300 px-4 py-2 rounded-lg transition-colors">
+            <i class="fas fa-file-csv mr-2"></i>Export as CSV
+        </button>
+    </div>
+</div>
+
+{% else %}
+<div class="bg-cyber-gray border border-gray-800 rounded-lg p-8 text-center">
+    <i class="fas fa-search text-6xl text-gray-600 mb-4"></i>
+    <h3 class="text-xl font-semibold text-gray-400 mb-2">No results found</h3>
+    <p class="text-gray-500">Try different keywords or check your spelling.</p>
+</div>
+{% endif %}
+
+{% else %}
+<!-- Search Tips -->
+<div class="bg-cyber-gray border border-gray-800 rounded-lg p-8">
+    <h2 class="text-2xl font-bold text-cyber-blue mb-4">
+        <i class="fas fa-lightbulb mr-2"></i>Search Tips
+    </h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+            <h3 class="text-lg font-semibold text-white mb-3">Search by Threat Type:</h3>
+            <ul class="space-y-2 text-gray-400">
+                <li><i class="fas fa-check text-cyber-green mr-2"></i>Ransomware attacks and variants</li>
+                <li><i class="fas fa-check text-cyber-green mr-2"></i>Malware families and campaigns</li>
+                <li><i class="fas fa-check text-cyber-green mr-2"></i>Phishing techniques and targets</li>
+                <li><i class="fas fa-check text-cyber-green mr-2"></i>Social engineering tactics</li>
+            </ul>
+        </div>
+        <div>
+            <h3 class="text-lg font-semibold text-white mb-3">Search by Vulnerability:</h3>
+            <ul class="space-y-2 text-gray-400">
+                <li><i class="fas fa-check text-cyber-green mr-2"></i>CVE numbers (e.g., CVE-2024-1234)</li>
+                <li><i class="fas fa-check text-cyber-green mr-2"></i>Zero-day vulnerabilities</li>
+                <li><i class="fas fa-check text-cyber-green mr-2"></i>Software-specific flaws</li>
+                <li><i class="fas fa-check text-cyber-green mr-2"></i>Patch releases and updates</li>
+            </ul>
+        </div>
+        <div>
+            <h3 class="text-lg font-semibold text-white mb-3">Search by Organization:</h3>
+            <ul class="space-y-2 text-gray-400">
+                <li><i class="fas fa-check text-cyber-green mr-2"></i>Company names and breaches</li>
+                <li><i class="fas fa-check text-cyber-green mr-2"></i>Government agencies</li>
+                <li><i class="fas fa-check text-cyber-green mr-2"></i>Critical infrastructure</li>
+                <li><i class="fas fa-check text-cyber-green mr-2"></i>Healthcare and finance sectors</li>
+            </ul>
+        </div>
+        <div>
+            <h3 class="text-lg font-semibold text-white mb-3">Search by Tools:</h3>
+            <ul class="space-y-2 text-gray-400">
+                <li><i class="fas fa-check text-cyber-green mr-2"></i>Security frameworks</li>
+                <li><i class="fas fa-check text-cyber-green mr-2"></i>Detection tools</li>
+                <li><i class="fas fa-check text-cyber-green mr-2"></i>Incident response platforms</li>
+                <li><i class="fas fa-check text-cyber-green mr-2"></i>Threat intelligence feeds</li>
+            </ul>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    function exportSearchResults(format) {
+        const query = '{{ query }}';
+        if (!query) {
+            alert('Please perform a search first');
+            return;
+        }
+        
+        // Create export data
+        const results = {{ results | tojson }};
+        const exportData = {
+            query: query,
+            timestamp: new Date().toISOString(),
+            total_results: results.length,
+            results: results
+        };
+        
+        if (format === 'json') {
+            const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `cyber-news-search-${query}-${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        } else if (format === 'csv') {
+            // Convert to CSV
+            const headers = ['Title', 'Source', 'Category', 'Severity', 'Published', 'URL', 'Summary'];
+            const csvContent = [
+                headers.join(','),
+                ...results.map(item => [
+                    `"${item.title.replace(/"/g, '""')}"`,
+                    `"${item.source}"`,
+                    `"${item.category}"`,
+                    `"${item.severity}"`,
+                    `"${item.published_at}"`,
+                    `"${item.url}"`,
+                    `"${(item.summary || '').replace(/"/g, '""')}"`
+                ].join(','))
+            ].join('\n');
+            
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `cyber-news-search-${query}-${new Date().toISOString().split('T')[0]}.csv`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+    }
+    
+    // Auto-focus search input
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.querySelector('input[name="q"]');
+        if (searchInput) {
+            searchInput.focus();
+        }
+    });
+</script>
+{% endblock %}
+
