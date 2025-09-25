@@ -1,0 +1,23 @@
+# Railway ignore file
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+ENV/
+env.bak/
+venv.bak/
+.DS_Store
+.vscode/
+.idea/
+*.log
+.env
+cyber-news-agent-deploy.zip
+*.tmp
+*.temp
+*.bak
+*.backup

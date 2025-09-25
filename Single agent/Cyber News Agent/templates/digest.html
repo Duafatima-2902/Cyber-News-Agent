@@ -1,0 +1,251 @@
+{% extends "base.html" %}
+
+{% block title %}Daily Digest - CyberNewsAgent{% endblock %}
+
+{% block content %}
+<!-- Header Section -->
+<div class="mb-8">
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center">
+        <div>
+            <h1 class="text-4xl font-bold text-cyber-blue cyber-text-glow mb-2">Daily Intelligence Digest</h1>
+            <p class="text-gray-400 text-lg">AI-generated summary of today's cybersecurity landscape</p>
+        </div>
+        <div class="mt-4 md:mt-0 flex space-x-4">
+            <button onclick="refreshDigest()" class="bg-cyber-blue hover:bg-blue-600 text-white px-6 py-3 rounded-lg transition-colors duration-200 cyber-glow">
+                <i class="fas fa-sync-alt mr-2"></i>Refresh Digest
+            </button>
+            <button onclick="shareDigest()" class="bg-gray-800 hover:bg-gray-700 text-white px-6 py-3 rounded-lg transition-colors duration-200">
+                <i class="fas fa-share mr-2"></i>Share
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Digest Content -->
+<div class="bg-cyber-gray border border-gray-800 rounded-lg p-8 mb-8">
+    <div class="flex items-center justify-between mb-6">
+        <h2 class="text-2xl font-bold text-cyber-blue">
+            <i class="fas fa-newspaper mr-2"></i>Executive Summary
+        </h2>
+        <div class="text-sm text-gray-400">
+            <i class="fas fa-clock mr-1"></i>Generated: 2024-09-24 18:30
+        </div>
+    </div>
+    
+    <div class="bg-gray-900 border border-gray-700 rounded-lg p-6">
+        <div class="prose prose-invert max-w-none">
+            <p class="text-gray-300 leading-relaxed text-lg">{{ digest }}</p>
+        </div>
+    </div>
+</div>
+
+<!-- Key Insights -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+    <div class="bg-cyber-gray border border-gray-800 rounded-lg p-6">
+        <div class="flex items-center mb-4">
+            <div class="bg-red-900 bg-opacity-20 p-3 rounded-full mr-4">
+                <i class="fas fa-exclamation-triangle text-cyber-red text-xl"></i>
+            </div>
+            <h3 class="text-lg font-semibold text-white">Critical Alerts</h3>
+        </div>
+        <p class="text-gray-400 text-sm">
+            High-severity threats requiring immediate attention and response from security teams.
+        </p>
+    </div>
+    
+    <div class="bg-cyber-gray border border-gray-800 rounded-lg p-6">
+        <div class="flex items-center mb-4">
+            <div class="bg-yellow-900 bg-opacity-20 p-3 rounded-full mr-4">
+                <i class="fas fa-eye text-cyber-yellow text-xl"></i>
+            </div>
+            <h3 class="text-lg font-semibold text-white">Threat Intelligence</h3>
+        </div>
+        <p class="text-gray-400 text-sm">
+            Emerging threat patterns, actor behaviors, and intelligence insights for proactive defense.
+        </p>
+    </div>
+    
+    <div class="bg-cyber-gray border border-gray-800 rounded-lg p-6">
+        <div class="flex items-center mb-4">
+            <div class="bg-green-900 bg-opacity-20 p-3 rounded-full mr-4">
+                <i class="fas fa-tools text-cyber-green text-xl"></i>
+            </div>
+            <h3 class="text-lg font-semibold text-white">Security Tools</h3>
+        </div>
+        <p class="text-gray-400 text-sm">
+            New security solutions, framework updates, and tool releases for enhanced protection.
+        </p>
+    </div>
+</div>
+
+<!-- Digest Actions -->
+<div class="bg-cyber-gray border border-gray-800 rounded-lg p-6 mb-8">
+    <h3 class="text-xl font-bold text-cyber-blue mb-4">
+        <i class="fas fa-bolt mr-2"></i>Digest Actions
+    </h3>
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <a href="{{ url_for('export_pdf') }}" class="bg-gray-800 hover:bg-gray-700 border border-gray-700 rounded-lg p-4 text-center transition-colors duration-200">
+            <i class="fas fa-file-pdf text-cyber-red text-2xl mb-2"></i>
+            <h4 class="font-semibold text-white">PDF Report</h4>
+            <p class="text-gray-400 text-sm">Download comprehensive report</p>
+        </a>
+        
+        <a href="{{ url_for('export_email') }}" class="bg-gray-800 hover:bg-gray-700 border border-gray-700 rounded-lg p-4 text-center transition-colors duration-200">
+            <i class="fas fa-envelope text-cyber-green text-2xl mb-2"></i>
+            <h4 class="font-semibold text-white">Email Summary</h4>
+            <p class="text-gray-400 text-sm">Share with team members</p>
+        </a>
+        
+        <a href="{{ url_for('export_json') }}" class="bg-gray-800 hover:bg-gray-700 border border-gray-700 rounded-lg p-4 text-center transition-colors duration-200">
+            <i class="fas fa-file-code text-cyber-blue text-2xl mb-2"></i>
+            <h4 class="font-semibold text-white">JSON Export</h4>
+            <p class="text-gray-400 text-sm">Machine-readable format</p>
+        </a>
+        
+        <button onclick="printDigest()" class="bg-gray-800 hover:bg-gray-700 border border-gray-700 rounded-lg p-4 text-center transition-colors duration-200">
+            <i class="fas fa-print text-cyber-yellow text-2xl mb-2"></i>
+            <h4 class="font-semibold text-white">Print Digest</h4>
+            <p class="text-gray-400 text-sm">Print-friendly version</p>
+        </button>
+    </div>
+</div>
+
+<!-- Historical Digests -->
+<div class="bg-cyber-gray border border-gray-800 rounded-lg p-6">
+    <h3 class="text-xl font-bold text-cyber-blue mb-4">
+        <i class="fas fa-history mr-2"></i>Digest Archive
+    </h3>
+    <p class="text-gray-400 mb-4">
+        Access previous daily digests and track cybersecurity trends over time.
+    </p>
+    
+    <div class="bg-gray-900 border border-gray-700 rounded-lg p-4">
+        <div class="flex items-center justify-between">
+            <div>
+                <h4 class="font-semibold text-white">Today's Digest</h4>
+                <p class="text-gray-400 text-sm">Current intelligence summary</p>
+            </div>
+            <div class="flex space-x-2">
+                <button onclick="viewDigest('today')" class="bg-cyber-blue hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors duration-200">
+                    <i class="fas fa-eye mr-1"></i>View
+                </button>
+                <button onclick="downloadDigest('today')" class="bg-gray-800 hover:bg-gray-700 text-gray-300 px-4 py-2 rounded-lg transition-colors duration-200">
+                    <i class="fas fa-download mr-1"></i>Download
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="mt-4 text-center">
+        <p class="text-gray-500 text-sm">
+            <i class="fas fa-info-circle mr-1"></i>
+            Historical digest archive coming soon
+        </p>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    function refreshDigest() {
+        const button = event.target;
+        const originalText = button.innerHTML;
+        button.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Refreshing...';
+        button.disabled = true;
+        
+        fetch('/api/refresh')
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    location.reload();
+                } else {
+                    alert('Error refreshing digest');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error refreshing digest');
+            })
+            .finally(() => {
+                button.innerHTML = originalText;
+                button.disabled = false;
+            });
+    }
+    
+    function shareDigest() {
+        if (navigator.share) {
+            navigator.share({
+                title: 'Daily Cybersecurity Digest',
+                text: 'Check out today\'s cybersecurity intelligence digest',
+                url: window.location.href
+            });
+        } else {
+            // Fallback: copy to clipboard
+            navigator.clipboard.writeText(window.location.href).then(() => {
+                alert('Digest URL copied to clipboard');
+            });
+        }
+    }
+    
+    function printDigest() {
+        const printWindow = window.open('', '_blank');
+        const digestContent = document.querySelector('.bg-gray-900.border.border-gray-700.rounded-lg.p-6').innerHTML;
+        
+        printWindow.document.write(`
+            <html>
+                <head>
+                    <title>Daily Cybersecurity Digest</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; margin: 20px; }
+                        h1 { color: #00d4ff; }
+                        h2 { color: #333; }
+                        p { line-height: 1.6; }
+                        .header { border-bottom: 2px solid #00d4ff; padding-bottom: 10px; margin-bottom: 20px; }
+                    </style>
+                </head>
+                <body>
+                    <div class="header">
+                        <h1>Daily Cybersecurity Digest</h1>
+                        <p>Generated: ${new Date().toLocaleString()}</p>
+                    </div>
+                    <div class="content">
+                        ${digestContent}
+                    </div>
+                </body>
+            </html>
+        `);
+        
+        printWindow.document.close();
+        printWindow.print();
+    }
+    
+    function viewDigest(date) {
+        // Future implementation for viewing historical digests
+        alert('Historical digest viewing coming soon');
+    }
+    
+    function downloadDigest(date) {
+        // Future implementation for downloading historical digests
+        alert('Historical digest download coming soon');
+    }
+    
+    // Auto-refresh digest every 30 minutes
+    setInterval(function() {
+        fetch('/api/refresh')
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    // Update timestamp
+                    const timestampElements = document.querySelectorAll('[data-timestamp]');
+                    timestampElements.forEach(el => {
+                        el.textContent = new Date().toLocaleString();
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error refreshing digest:', error);
+            });
+    }, 30 * 60 * 1000);
+</script>
+{% endblock %}
+
